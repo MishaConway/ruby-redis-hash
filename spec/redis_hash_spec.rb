@@ -194,9 +194,71 @@ describe RedisHash do
 		end
 
 
+		describe '#set_if_does_not_exist' do
+			let(:new_value){ 'some_value' }
+
+		  before do
+			  redis.hset(name, 'a', 1)
+			  redis.hset(name, 'b', 2)
+			  redis.hset(name, 'c', 3)
+		  end
+
+			subject{ hash.set_if_does_not_exist key => new_value}
+
+			context 'when the key already exists' do
+			  let(:key){'b'}
+			  let(:old_value){'2'}
+
+				it 'should do nothing' do
+			    subject
+					expect(hash.get(key)).to eq({key => old_value})
+			  end
+			end
+
+			context 'when the key does not exist yet' do
+			  let(:key){'d'}
+
+				it 'should set the key' do
+				  subject
+					expect(hash.get(key)).to eq({key => new_value})
+				end
+			end
+		end
+
+		describe '#increment_integer_key' do
+			before do
+				redis.hset(name, 'a', 1)
+				redis.hset(name, 'b', 2)
+				redis.hset(name, 'c', 3)
+			end
+
+			it 'should increment integer keys' do
+			  expect(hash.get(%w(a b c))).to eq({'a' => '1', 'b' => '2', 'c' => '3'})
+
+				hash.increment_integer_key 'b'
+			  expect(hash.get(%w(a b c))).to eq({'a' => '1', 'b' => '3', 'c' => '3'})
+
+			  hash.increment_integer_key 'a', 5
+			  expect(hash.get(%w(a b c))).to eq({'a' => '6', 'b' => '3', 'c' => '3'})
+			end
+		end
+
+		describe '#increment_float_key' do
+			before do
+				redis.hset(name, 'a', 1.1)
+				redis.hset(name, 'b', 2.2)
+				redis.hset(name, 'c', 3.6)
+			end
+
+			it 'should increment integer keys' do
+				expect(hash.get(%w(a b c))).to eq({'a' => '1.1', 'b' => '2.2', 'c' => '3.6'})
+
+				hash.increment_float_key 'b'
+				expect(hash.get(%w(a b c))).to eq({'a' => '1.1', 'b' => '3.2', 'c' => '3.6'})
+
+				hash.increment_float_key 'a', 5
+				expect(hash.get(%w(a b c))).to eq({'a' => '6.1', 'b' => '3.2', 'c' => '3.6'})
+			end
+		end
 	end
-
-
-
-
 end

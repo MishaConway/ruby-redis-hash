@@ -47,15 +47,15 @@ class RedisHash
 		end
 	end
 
-	def set_if_does_not_exist key, value
-		@redis.hsetnx(name, key, value)
+	def set_if_does_not_exist hash
+		@redis.hsetnx(name, hash.keys.first, hash.values.first)
 	end
 
-	def increment_integer_key key, increment_amount
+	def increment_integer_key key, increment_amount = 1
 		@redis.hincrby(name, key, increment_amount)
 	end
 
-	def increment_float_key key, increment_amount
+	def increment_float_key key, increment_amount = 1
 		@redis.hincrbyfloat(name, key, increment_amount)
 	end
 
