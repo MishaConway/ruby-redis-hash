@@ -65,7 +65,7 @@ class RedisHash
 	def remove *keys
 		keys = keys.flatten
 		if keys.size > 0
-			@redis.hdel name, keys
+			@redis.hdel name, *keys
 		end
 	end
 
@@ -101,7 +101,7 @@ class RedisHash
 			loop do
 				cursor, items = scan cursor, slice_size
 				items.each do |item|
-					yielder << item
+					yielder << {item.first => item.last}
 				end
 				raise StopIteration if cursor.to_i.zero?
 			end
@@ -110,7 +110,7 @@ class RedisHash
 
 	def clear
 		@redis.del name
-		[]
+		{}
 	end
 
 	alias flush clear

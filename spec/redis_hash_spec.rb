@@ -5,6 +5,10 @@ describe RedisHash do
 	let(:name){"some_hash"}
 	let(:hash){described_class.new(name, redis)}
 
+	before do
+		redis.flushall
+	end
+
 	context "instance methods" do
 		describe '#all' do
 			subject{ hash.all }
@@ -14,6 +18,63 @@ describe RedisHash do
 				redis.hset(name, 'b', 2)
 
 				expect(subject).to eq({'a' => '1', 'b' => '2'})
+			end
+		end
+
+		describe '#keys' do
+			subject{ hash.keys }
+
+			it 'should return all the keys in the hash' do
+				redis.hset(name, 'a', 1)
+				redis.hset(name, 'b', 2)
+
+				expect(subject).to eq(%w(a b))
+			end
+		end
+
+		describe '#values' do
+			subject{ hash.values }
+
+			it 'should return all the keys in the hash' do
+				redis.hset(name, 'a', 1)
+				redis.hset(name, 'b', 2)
+
+				expect(subject).to eq(%w(1 2))
+			end
+		end
+
+		describe '#size' do
+			subject{ hash.size }
+
+			it 'should return all the keys in the hash' do
+				redis.hset(name, 'a', 1)
+				redis.hset(name, 'b', 2)
+
+				expect(subject).to eq(2)
+			end
+		end
+
+		describe '#clear' do
+			subject{ hash.clear }
+
+			it 'should return all the keys in the hash' do
+				redis.hset(name, 'a', 1)
+				redis.hset(name, 'b', 2)
+
+				expect(subject).to eq({})
+				expect(redis.hlen name).to eq(0)
+				expect(hash.size).to eq(0)
+			end
+		end
+
+		describe '#include?' do
+			it 'should return all the keys in the hash' do
+				redis.hset(name, 'a', 1)
+				redis.hset(name, 'b', 2)
+
+				expect(hash.include?('a')).to be true
+				expect(hash.include?('b')).to be true
+				expect(hash.include?('c')).to be false
 			end
 		end
 
@@ -52,8 +113,84 @@ describe RedisHash do
 
 
 		describe '#set' do
+			subject{ hash.set items }
 
-			
+			before do
+			  # verify our hash is empty or else our tests won't be reliable
+				expect(redis.hlen name).to eq(0)
+			end
+
+			context 'setting a single item' do
+			  let(:items){ {'cool' => '111'} }
+
+			  it 'can set a single item' do
+					subject
+
+				  expect(hash.all).to eq(items)
+			  end
+			end
+
+			context 'setting multiple items' do
+			  let(:items){ {'cool' => '111', 'awesome' => '222'} }
+
+			  it 'can set multiple items' do
+				  subject
+
+				  expect(hash.all).to eq(items)
+			  end
+
+				context 'setting multiple items in reverse order' do
+					let(:items){ {'awesome' => '222', 'cool' => '111'} }
+
+					it 'can set multiple items' do
+						subject
+
+						expect(hash.all).to eq(items)
+					end
+				end
+			end
+
+			context 'setting multiple items in succession' do
+			  it 'can set multiple items in succession' do
+			    hash.set :x => 3
+				  hash.set :y => 4, :z => 5
+			    expect(hash.all).to eq({'x' => '3', 'y' => '4', 'z' => '5'})
+			  end
+			end
+		end
+
+		describe '#remove' do
+		  subject{ hash.remove keys}
+
+		  before do
+			  redis.hset(name, 'a', 1)
+			  redis.hset(name, 'b', 2)
+			  redis.hset(name, 'c', 3)
+		  end
+
+			context 'removing a single key' do
+				let(:keys){ 'a' }
+
+				it 'removes a single key' do
+					expect(redis.hlen name).to eq(3)
+					subject
+					expect(redis.hlen name).to eq(2)
+					expect(hash.keys).to eq(%w(b c))
+					expect(hash.all).to eq({'b' => '2', 'c' => '3'})
+				end
+			end
+
+			context 'removing multiple keys' do
+			  let(:keys){ %w(a c) }
+
+				it 'removes multiple keys' do
+					expect(redis.hlen name).to eq(3)
+					subject
+					expect(redis.hlen name).to eq(1)
+					expect(hash.keys).to eq(%w(b))
+					expect(hash.all).to eq({'b' => '2'})
+				end
+			end
 		end
 
 

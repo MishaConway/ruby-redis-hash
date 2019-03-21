@@ -1,8 +1,6 @@
-# Redis::Hash
+# RedisHash
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/redis/hash`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Lightweight wrapper over redis hashes.
 
 ## Installation
 
@@ -20,20 +18,99 @@ Or install it yourself as:
 
     $ gem install redis-hash
 
-## Usage
+## Getting started
 
-TODO: Write usage instructions here
+```ruby
+h = RedisHash.new 'completed_customer_ids'
+```
 
-## Development
+Or you can pass in your own instance of the Redis class.
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+```ruby
+h = RedisHash.new 'completed_customer_ids', Redis.new(:host => "10.0.1.1", :port => 6380, :db => 15)
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+A third option is to instead pass your Redis configurations.
 
-## Contributing
+```ruby
+h = RedisHash.new 'completed_customer_ids', :host => "10.0.1.1", :port => 6380, :db => 15
+```
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/redis-hash.
+## Using the hash
 
-## License
+You can add data to the hash using either the set method.
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+```ruby
+# setting a single item
+h.set {"hello" => "world"}
+
+# setting multiple items
+h.add {"hello" => "world", "goodbye" => "universe"}
+```
+
+You can read data from the hash with the get method
+
+```ruby
+# reading a single key
+h.get "hello"
+
+# reading multiple keys
+h.get "hello", "goodbye"
+```
+
+You can remove keys from the hash with the remove method
+```ruby
+# removing a single key
+h.remove "hello"  
+
+# removing multiple keys
+h.remove "hello", "goodbye" 
+
+```
+
+
+You can get the size of the hash.
+
+```ruby
+h.size
+```
+
+You can see if a key exists in the hash.
+
+```ruby
+h.include? "hello"
+```
+
+You can get all items in the hash.
+
+```ruby
+h.all
+```
+
+You can get all keys in the hash.
+
+```ruby
+h.keys
+```
+
+You can get all values in the hash.
+
+```ruby
+h.values
+```
+
+The hash can be cleared of all items
+```ruby
+h.clear
+```
+
+The hash can also be hash to expire (in seconds).
+```ruby
+# expire in five minutes
+h.expire 60*5
+```
+
+You can enumerate the hash in batches.
+```ruby
+#enumerate through the hash in batches of 100 items per redis op
+h.enumerator(100).each{ |i| puts i } 
