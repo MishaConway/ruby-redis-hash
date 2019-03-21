@@ -1,15 +1,12 @@
 require "redis"
 
 class RedisHash
-	#class Hash
 	attr_reader :name
 
 	VERSION = "0.0.1"
 
-	class InvalidNameException < StandardError;
-	end;
-	class InvalidRedisConfigException < StandardError;
-	end;
+	class InvalidNameException < StandardError; end;
+	class InvalidRedisConfigException < StandardError; end;
 
 	def initialize(name, redis_or_options = {})
 		name = name.to_s if name.kind_of? Symbol
@@ -118,5 +115,4 @@ class RedisHash
 	def expire seconds
 		@redis.expire name, seconds
 	end
-	#end
 end

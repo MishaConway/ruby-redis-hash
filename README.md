@@ -38,7 +38,7 @@ h = RedisHash.new 'completed_customer_ids', :host => "10.0.1.1", :port => 6380, 
 
 ## Using the hash
 
-You can add data to the hash using either the set method.
+You can add data to the hash using the set method.
 
 ```ruby
 # setting a single item
