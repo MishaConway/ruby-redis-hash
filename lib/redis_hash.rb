@@ -3,7 +3,7 @@ require "redis"
 class RedisHash
 	attr_reader :name
 
-	VERSION = "0.0.3"
+	VERSION = "0.0.4"
 
 	class InvalidNameException < StandardError; end;
 	class InvalidRedisConfigException < StandardError; end;
@@ -17,6 +17,9 @@ class RedisHash
 			         redis_or_options
 			       elsif redis_or_options.kind_of? Hash
 				       ::Redis.new redis_or_options
+			       elsif defined?(ActiveSupport::Cache::RedisStore) && redis_or_options.kind_of?(ActiveSupport::Cache::RedisStore)
+							 @pooled = redis_or_options.data.kind_of?(ConnectionPool)
+				       redis_or_options.data
 			       elsif defined?(ConnectionPool) && redis_or_options.kind_of?(ConnectionPool)
 							 @pooled = true
 							 redis_or_options
