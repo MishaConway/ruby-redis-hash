@@ -3,7 +3,7 @@ require "redis"
 class RedisHash
 	attr_reader :name
 
-	VERSION = "0.0.1"
+	VERSION = "0.0.2"
 
 	class InvalidNameException < StandardError; end;
 	class InvalidRedisConfigException < StandardError; end;
