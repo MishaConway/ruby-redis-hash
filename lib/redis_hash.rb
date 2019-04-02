@@ -3,12 +3,12 @@ require "redis"
 class RedisHash
 	attr_reader :name
 
-	VERSION = "0.0.4"
+	VERSION = "0.0.5"
 
 	class InvalidNameException < StandardError; end;
 	class InvalidRedisConfigException < StandardError; end;
 
-	def initialize(name, redis_or_options = {})
+	def initialize(name, redis_or_options = {}, more_options = {})
 		name = name.to_s if name.kind_of? Symbol
 
 		raise InvalidNameException.new unless name.kind_of?(String) && name.size > 0
@@ -18,14 +18,18 @@ class RedisHash
 			       elsif redis_or_options.kind_of? Hash
 				       ::Redis.new redis_or_options
 			       elsif defined?(ActiveSupport::Cache::RedisStore) && redis_or_options.kind_of?(ActiveSupport::Cache::RedisStore)
-							 @pooled = redis_or_options.data.kind_of?(ConnectionPool)
+				       @pooled = redis_or_options.data.kind_of?(ConnectionPool)
 				       redis_or_options.data
 			       elsif defined?(ConnectionPool) && redis_or_options.kind_of?(ConnectionPool)
-							 @pooled = true
-							 redis_or_options
+				       @pooled = true
+				       redis_or_options
 			       else
 				       raise InvalidRedisConfigException.new
 		         end
+
+		if more_options.kind_of?(Hash) && more_options[:expire]
+			expire more_options[:expire]
+		end
 	end
 
 	def get *keys
