@@ -3,7 +3,7 @@ require "redis"
 class RedisHash
 	attr_reader :name
 
-	VERSION = "0.0.5"
+	VERSION = "0.0.6"
 
 	class InvalidNameException < StandardError; end;
 	class InvalidRedisConfigException < StandardError; end;
@@ -44,6 +44,8 @@ class RedisHash
 			keys.each_with_index.map do |k,i|
 				[k, values[i]]
 			end.to_h
+		else
+			{}
 		end
 	end
 
