@@ -82,15 +82,25 @@ describe RedisHash do
 		  subject{ hash.get keys}
 
 		  before do
-			  redis.hset(name, 'a', 1)
+			  redis.hset(name, 'a', 'one')
 			  redis.hset(name, 'b', 2)
 		  end
 
 			context 'getting a single key' do
-			  let(:keys){ 'a' }
+			  context 'that already exists' do
+				  let(:keys){ 'a' }
 
-				it 'gets the single value' do
-				  expect(subject).to eq('a' => '1')
+				  it 'gets the single value' do
+					  expect(subject).to eq('a' => 'one')
+					end
+			  end
+
+				context 'that does not exist' do
+					let(:keys){ 'c' }
+
+					it 'gets the single value' do
+						expect(subject).to eq('c' => nil)
+					end
 				end
 			end
 
@@ -98,14 +108,14 @@ describe RedisHash do
 			  let(:keys){ %w(a b) }
 
 				it 'gets all of the values' do
-					expect(subject).to eq({'a' => '1', 'b' => '2'})
+					expect(subject).to eq({'a' => 'one', 'b' => '2'})
 				end
 
 				context 'getting multiple keys in reverse order' do
 				  let(:keys){ %w(b a) }
 
 				  it 'gets all of the values in reverse order' do
-					  expect(subject).to eq({'b' => '2', 'a' => '1'})
+					  expect(subject).to eq({'b' => '2', 'a' => 'one'})
 				  end
 				end
 			end

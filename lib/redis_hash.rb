@@ -3,7 +3,7 @@ require "redis"
 class RedisHash
 	attr_reader :name
 
-	VERSION = "0.0.6"
+	VERSION = "0.0.7"
 
 	class InvalidNameException < StandardError; end;
 	class InvalidRedisConfigException < StandardError; end;
@@ -36,7 +36,7 @@ class RedisHash
 		keys = keys.flatten
 		if keys.size > 0
 			values = if 1 == keys.size
-				         with{|redis| redis.hget name, keys.first }
+				         [with{|redis| redis.hget(name, keys.first) }]
 				       else
 					       with{|redis| redis.hmget name, *keys }
 			         end
