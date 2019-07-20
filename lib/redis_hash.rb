@@ -3,7 +3,7 @@ require "redis"
 class RedisHash
 	attr_reader :name
 
-	VERSION = "0.0.7"
+	VERSION = "0.0.8"
 
 	class InvalidNameException < StandardError; end;
 	class InvalidRedisConfigException < StandardError; end;
@@ -76,7 +76,7 @@ class RedisHash
 	def remove *keys
 		keys = keys.flatten
 		if keys.size > 0
-			with{|redis| redis.hdel name, *keys}
+			with{|redis| redis.hdel name, keys}
 		end
 	end
 
